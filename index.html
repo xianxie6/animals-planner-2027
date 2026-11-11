@@ -82,7 +82,7 @@ canvas{display:block}
 <div id="stack"></div>
 <textarea id="ink" hidden spellcheck="false"></textarea>
 <div id="note" hidden><b></b><textarea placeholder="写下计划…（回车保存）"></textarea><small>Shift+回车换行 · 清空即删除</small></div>
-<div class="ui"><button id="b1">打开封面</button><button id="b2">展开三折页</button><button id="prev">‹</button><button id="next">›</button><button id="tg">收起贴纸栏</button><button id="bk">备份</button><button id="rs">恢复</button><input type="file" id="rsf" accept=".json,application/json" hidden></div>
+<div class="ui"><button id="b1">打开封面</button><button id="prev">‹</button><button id="next">›</button><button id="tg">收起贴纸栏</button><button id="bk">备份</button><button id="rs">恢复</button><input type="file" id="rsf" accept=".json,application/json" hidden></div>
 <div id="toast" hidden><span></span><button id="tbk">立即备份</button><button id="tx">×</button></div>
 <script type="module">
 import * as THREE from 'three';
@@ -408,11 +408,11 @@ mArt.position.set(-1.6+1.65,-1.85-1.65,0.18);swing.add(mArt);
 
 /* ---------- interaction & animation ---------- */
 const state={open:0,unf:0},cur={c:0,f:0,p2:0,p3:0};
-const b1=document.getElementById('b1'),b2=document.getElementById('b2');
-function setOpen(o){state.open=o;if(!o)state.unf=0;sync()}
+const b1=document.getElementById('b1');
+function setOpen(o){if(o){setUnf(1);return}state.open=0;state.unf=0;sync()}
 function setUnf(u){const was=state.open;state.unf=u;if(u)state.open=1;sync();setTimeout(()=>sfx('flip',.45),was?800:1700);setTimeout(()=>sfx('flip',.4),was?1600:2500)}
-function sync(){sfx('flip',.5);b1.textContent=state.open?'合上':'打开封面';b2.textContent=state.unf?'折回':'展开三折页';om+=state.open?1.5:-1.5}
-b1.onclick=()=>setOpen(state.open?0:1);b2.onclick=()=>setUnf(state.unf?0:1);
+function sync(){sfx('flip',.5);b1.textContent=state.open?'合上':'打开封面';om+=state.open?1.5:-1.5}
+b1.onclick=()=>setOpen(state.open?0:1);
 // ---- page flip: drag the month page left/right (or ‹ ›). A bent sheet carries the old page over the rings.
 const FSEG=36,flipGeo=new THREE.PlaneGeometry(W,H,FSEG,1);flipGeo.translate(W/2,0,0);
 const flipCv=document.createElement('canvas');flipCv.width=CW;flipCv.height=CH;const flipTex=tex(flipCv);
