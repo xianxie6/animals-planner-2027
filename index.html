@@ -65,6 +65,11 @@ canvas{display:block}
 
 #drag{position:fixed;z-index:30;pointer-events:none;width:84px;height:84px;filter:drop-shadow(0 14px 10px #0004);animation:peel .35s ease-out forwards}
 @keyframes peel{0%{transform:translate(-50%,-50%) perspective(300px) rotateX(0) scale(.7)}60%{transform:translate(-50%,-50%) perspective(300px) rotateX(38deg) rotateZ(-8deg) scale(1.05)}100%{transform:translate(-50%,-50%) perspective(300px) rotateX(12deg) rotateZ(-4deg) scale(1)}}
+#toast{position:fixed;left:50%;top:44px;transform:translateX(-50%);z-index:40;background:#3b2414;color:#f6e7d2;border-radius:22px;padding:8px 10px 8px 18px;
+  font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px #0004}
+#toast[hidden]{display:none}
+#toast button{border:0;border-radius:14px;padding:5px 12px;background:#f6e7d2;color:#3b2414;font-size:12px;cursor:pointer}
+#toast #tx{background:transparent;color:#f6e7d2;font-size:16px;padding:0 6px}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -77,7 +82,8 @@ canvas{display:block}
 <div id="stack"></div>
 <textarea id="ink" hidden spellcheck="false"></textarea>
 <div id="note" hidden><b></b><textarea placeholder="写下计划…（回车保存）"></textarea><small>Shift+回车换行 · 清空即删除</small></div>
-<div class="ui"><button id="b1">打开封面</button><button id="b2">展开三折页</button><button id="prev">‹</button><button id="next">›</button><button id="tg">收起贴纸栏</button></div>
+<div class="ui"><button id="b1">打开封面</button><button id="b2">展开三折页</button><button id="prev">‹</button><button id="next">›</button><button id="tg">收起贴纸栏</button><button id="bk">备份</button><button id="rs">恢复</button><input type="file" id="rsf" accept=".json,application/json" hidden></div>
+<div id="toast" hidden><span></span><button id="tbk">立即备份</button><button id="tx">×</button></div>
 <script type="module">
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
@@ -436,6 +442,28 @@ function flipMonth(d){if(flip||!state.open||cur.c<.95)return;const nm=month+d;if
 function stepFlip(dt){if(!flip)return;flip.t=Math.min(1,flip.t+dt/0.8);const e=flip.t<.5?2*flip.t*flip.t:1-Math.pow(-2*flip.t+2,2)/2;
   bendFlip(flip.from+(flip.to-flip.from)*e,Math.sin(Math.PI*flip.t)*(flip.to>flip.from?-.9:.9));if(flip.t>=1){flipMesh.visible=false;flip=null;pat()}}
 document.getElementById('tg').onclick=e=>{const h=stackEl.style.display!=='none';stackEl.style.display=h?'none':'';e.target.textContent=h?'展开贴纸栏':'收起贴纸栏'};
+// ---- backup / restore: everything you wrote and stuck lives in this browser; export it to a file you keep
+const toastEl=document.getElementById('toast');
+function toast(msg,showBtn,ms){toastEl.querySelector('span').textContent=msg;document.getElementById('tbk').hidden=!showBtn;toastEl.hidden=false;clearTimeout(toast.t);if(ms)toast.t=setTimeout(()=>toastEl.hidden=true,ms)}
+function exportBackup(){const d=new Date(),pad=n=>String(n).padStart(2,'0'),day=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const data={app:'animals-planner-2027',version:1,exportedAt:d.toISOString(),notes:NOTES,stickers:STK.map(({t,...r})=>r)};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));a.download=`手帐备份-${day}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  try{localStorage.setItem('pn27-lastbackup',String(Date.now()))}catch(e){}
+  toast(`已备份：${Object.keys(NOTES).length} 条计划，${STK.length} 张贴纸`,false,3500)}
+function importBackup(file){const fr=new FileReader();fr.onload=()=>{try{const d=JSON.parse(fr.result);
+    if(d.app!=='animals-planner-2027'||typeof d.notes!=='object'||!Array.isArray(d.stickers))throw 0;
+    const n=Object.keys(d.notes).length,cur=Object.keys(NOTES).length+STK.length;
+    if(cur&&!confirm(`恢复会用备份（${n} 条计划，${d.stickers.length} 张贴纸）替换当前内容（${Object.keys(NOTES).length} 条计划，${STK.length} 张贴纸）。确定吗？`))return;
+    Object.keys(NOTES).forEach(k=>delete NOTES[k]);Object.assign(NOTES,d.notes);
+    STK.length=0;d.stickers.forEach(p=>{if(Number.isFinite(p.i)&&Number.isFinite(p.x)&&Number.isFinite(p.y))STK.push(p)});
+    save();try{localStorage.setItem('pn27-lastbackup',String(Date.now()))}catch(e){}drawAll();toast(`已恢复：${n} 条计划，${STK.length} 张贴纸`,false,3500)}catch(e){toast('这个文件不是手帐备份，没有恢复',false,3500)}};fr.readAsText(file)}
+document.getElementById('bk').onclick=exportBackup;document.getElementById('tbk').onclick=exportBackup;
+document.getElementById('tx').onclick=()=>toastEl.hidden=true;
+const rsf=document.getElementById('rsf');document.getElementById('rs').onclick=()=>rsf.click();
+rsf.onchange=()=>{if(rsf.files[0])importBackup(rsf.files[0]);rsf.value=''};
+setTimeout(()=>{let last=0;try{last=+localStorage.getItem('pn27-lastbackup')||0}catch(e){}
+  const has=Object.keys(NOTES).length+STK.length;if(!has)return;const days=Math.floor((Date.now()-last)/864e5);
+  if(!last)toast(`你已经写了 ${Object.keys(NOTES).length} 条计划，还没备份过`,true);else if(days>=7)toast(`已经 ${days} 天没备份了`,true)},2500);
 document.getElementById('prev').onclick=()=>flipMonth(-1);
 document.getElementById('next').onclick=()=>flipMonth(1);
 let pageDrag=null;
