@@ -60,6 +60,12 @@ canvas{display:block}
 .stkw.used::before{content:"";position:absolute;inset:0;background:#e9e1d3;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat;
   filter:drop-shadow(0 0 .5px #b9ab95)}
 .stkw.used::after{display:none}
+#pull{position:fixed;inset:0;width:100vw;height:100vh;z-index:29;pointer-events:none}
+.tape{position:fixed;left:0;top:0;width:200px;height:200px;transform-origin:0 0;z-index:11;cursor:grab}
+.tape img{width:100%;height:100%;transition:transform .25s;filter:drop-shadow(0 6px 6px rgba(80,40,20,.18))}
+.tape:hover img{transform:rotate(-6deg) translateY(-3px)}
+.tape span{position:absolute;left:0;right:0;bottom:-22px;text-align:center;font:600 13px "PingFang SC";color:#b04a3a;opacity:0;transition:opacity .2s}
+.tape:hover span{opacity:.85}
 #peel{position:fixed;z-index:30;pointer-events:none}
 .strip .stkw:not(.used) .stk:hover{transform:scale(1.06) rotate(-3deg)}
 
@@ -611,6 +617,44 @@ folder.addEventListener('pointerleave',()=>{popT=setTimeout(()=>{if(!peel&&!drag
 folder.addEventListener('pointermove',e=>{const r=folder.getBoundingClientRect();folder.style.setProperty('--mx',((e.clientX-r.left)/r.width*100).toFixed(0)+'%');folder.style.setProperty('--my',((e.clientY-r.top)/r.height*100).toFixed(0)+'%')});
 folder.querySelector('.front').style.pointerEvents='none';
 folder.addEventListener('click',e=>{if(!e.target.closest('.pop')){folder.classList.remove('open');setTimeout(()=>{setPop(insK+1);folder.classList.add('open')},160)}});   // tap the folder → another one pops out
+// ---- apple-peel washi tape: pull the tail off the roll, it tears at a fixed length, each piece becomes a sticker (indices 1000+k)
+const TAPE0=1000,PIECE=226,TH=52;   // piece size in sticker-canvas px (≈ one date cell wide)
+let tapeTex=null,tapeK=load('pn27-tape',0);
+const tapeEl=document.createElement('div');tapeEl.className='tape';tapeEl.innerHTML='<img src="tape/apple-roll.webp" draggable="false"><span>拉我撕一段</span>';stackEl.appendChild(tapeEl);
+const rollImg=tapeEl.querySelector('img');
+{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=600;const g=c.getContext('2d');g.drawImage(im,0,0,600,600);
+  const d=g.getImageData(0,0,600,600),p=d.data;for(let j=0;j<p.length;j+=4){const m=Math.min(p[j],p[j+1],p[j+2]),sp=Math.max(p[j],p[j+1],p[j+2])-m;   // knock out the white studio background, keep the warm core
+    if(sp<14&&m>232)p[j+3]=Math.max(0,(255-m)*12)}g.putImageData(d,0,0);rollImg.src=c.toDataURL()};im.src='tape/apple-roll.webp'}
+const pullCv=document.createElement('canvas');pullCv.id='pull';document.body.appendChild(pullCv);
+function rng(s){return()=>{s=(s*16807+11)%2147483647;return s/2147483647}}
+function tearEdge(k){const r=rng(k*7919+13),pts=[];for(let y=0;y<=TH;y+=3+r()*4)pts.push([(r()-.5)*7,Math.min(y,TH)]);pts.push([(r()-.5)*7,TH]);return pts}   // shared by piece k-1 (right end) and piece k (left end)
+function texAt(g,off,x,w,h){const tw=tapeTex.width,sc=h/tapeTex.height;let sx=(off/sc)%tw,dx=x,rem=w;   // tile the strip texture
+  while(rem>0){const cw=Math.min(rem,(tw-sx)*sc);g.drawImage(tapeTex,sx,0,cw/sc,tapeTex.height,dx,0,cw,h);dx+=cw;rem-=cw;sx=0}}
+function tapePiece(k){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),x0=(256-PIECE)/2,y0=(256-TH)/2;
+  const L=tearEdge(k),Rr=tearEdge(k+1);g.translate(x0,y0);g.beginPath();L.forEach(([x,y],j)=>j?g.lineTo(x,y):g.moveTo(x,y));
+  for(let j=Rr.length-1;j>=0;j--)g.lineTo(PIECE+Rr[j][0],Rr[j][1]);g.closePath();g.clip();texAt(g,k*PIECE,-6,PIECE+12,TH);return c}
+function tapeArt(i){if(ART[i]||!tapeTex||i<TAPE0)return;ART[i]=tapePiece(i-TAPE0);BACK[i]=backing(ART[i])}
+const tx=new Image();tx.onload=()=>{const sy=Math.round(tx.height*.345),sh=Math.round(tx.height*.3),c=document.createElement('canvas');c.width=tx.width;c.height=sh;
+  const g=c.getContext('2d');g.drawImage(tx,0,sy,tx.width,sh,0,0,tx.width,sh);const d=g.getImageData(0,0,c.width,sh),p=d.data;
+  for(let j=0;j<p.length;j+=4){const m=Math.min(p[j],p[j+1],p[j+2]);p[j+3]=m>238?0:m>215?(238-m)/23*255:255}g.putImageData(d,0,0);   // white → transparent
+  tapeTex=c;STK.forEach(p=>tapeArt(p.i));drawAll()};tx.src='tape/apple-strip.webp';
+let pull=null;
+tapeEl.addEventListener('pointerdown',e=>{if(!tapeTex||e.button!==0)return;e.preventDefault();e.stopPropagation();downXY=null;controls.enabled=false;
+  const r=rollImg.getBoundingClientRect();pull={ax:r.left+r.width*.5,ay:r.top+r.height*.93,w:r.width*.16,dist:0,lastT:0};drawPull(e.clientX,e.clientY);sfx('tick',.2)});
+function drawPull(px,py){const dpr=devicePixelRatio||1;pullCv.width=innerWidth*dpr;pullCv.height=innerHeight*dpr;const g=pullCv.getContext('2d');g.scale(dpr,dpr);
+  const {ax,ay,w}=pull,dx=px-ax,dy=py-ay,len=Math.hypot(dx,dy);if(len<2)return 0;
+  const cx=ax+dx*.5,cy=ay+dy*.5+Math.min(60,len*.25),N=Math.max(4,len/6|0),sc=w/TH;   // sagging curve from roll to pointer
+  let prev=[ax,ay],acc=0;g.shadowColor='rgba(60,30,20,.25)';g.shadowBlur=8;g.shadowOffsetY=6;
+  for(let s=1;s<=N;s++){const t=s/N,x=(1-t)*(1-t)*ax+2*t*(1-t)*cx+t*t*px,y=(1-t)*(1-t)*ay+2*t*(1-t)*cy+t*t*py,sl=Math.hypot(x-prev[0],y-prev[1]);
+    g.save();g.translate(prev[0],prev[1]);g.rotate(Math.atan2(y-prev[1],x-prev[0]));g.scale(sc,sc);g.translate(0,-TH/2);
+    const seg=sl/sc+.8;g.beginPath();g.rect(0,0,seg,TH);g.clip();texAt(g,tapeK*PIECE+acc/sc,0,seg,TH);g.restore();acc+=sl;prev=[x,y]}
+  rollImg.style.transform=`rotate(${-acc*.6}deg)`;return acc}
+addEventListener('pointermove',e=>{if(!pull)return;const acc=drawPull(e.clientX,e.clientY),now=performance.now();
+  if(now-pull.lastT>30+Math.random()*25){pull.lastT=now;sfx('tick',.1+Math.random()*.1)}
+  if(acc>PIECE*(pull.w/TH)){const k=tapeK++,i=TAPE0+k;try{localStorage.setItem('pn27-tape',tapeK)}catch(_){}tapeArt(i);   // fixed length reached → tear
+    pullCv.getContext('2d').clearRect(0,0,pullCv.width,pullCv.height);pull=null;rollImg.style.transition='transform .4s';rollImg.style.transform='';setTimeout(()=>rollImg.style.transition='',400);
+    dragI=i;dragEl=document.createElement('img');dragEl.id='drag';dragEl.src=ART[i].toDataURL();sizeDrag(1.9);dragEl.dataset.s=1.9;document.body.appendChild(dragEl);moveDrag(e);paperRip(.75)}});
+addEventListener('pointerup',()=>{if(!pull)return;pull=null;controls.enabled=true;pullCv.getContext('2d').clearRect(0,0,pullCv.width,pullCv.height);rollImg.style.transform='';sfx('pat',.3)});   // let go early → it rolls back
 function markUsed(){}   // stickers are reusable: a fresh copy refills the slot after each peel
 let dragEl=null,dragI=-1;
 // Peel: the sticker lifts from the nearest corner along a fold line; the flap shows the white liner side and casts a shadow.
@@ -671,7 +715,7 @@ function drawPlaced(){if(!ART)return;const map={I:cvIntro,L:cvL,R:cvR};
     const age=p.t?(now-p.t)/1000:9;let k=1,lift=0;
     if(age<.5){if(age<.11){const u=age/.11;k=1.3-.38*u;lift=1-u}else{const u=(age-.11)/.39;k=.92+.08*(1-Math.pow(1-u,3))+Math.sin(u*Math.PI*2)*.02*(1-u);lift=0}}
     const sz=170*p.s*k;g.save();g.translate(p.x,p.y);g.rotate(p.r+(age<.5?Math.sin(age*30)*.03*(1-age*2):0));
-    g.shadowColor=`rgba(60,40,20,${.28+.12*lift})`;g.shadowBlur=6+26*lift;g.shadowOffsetY=3+16*lift;g.drawImage(a,-sz/2,-sz/2,sz,sz);g.restore()})}
+    if(p.i>=TAPE0&&age>=.5){g.globalCompositeOperation='multiply';g.globalAlpha=.92}else g.shadowColor=`rgba(60,40,20,${.28+.12*lift})`;g.shadowBlur=6+26*lift;g.shadowOffsetY=3+16*lift;g.drawImage(a,-sz/2,-sz/2,sz,sz);g.restore()})}
 setTimeout(markUsed,300);
 
 function placeStrips(){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;const add=(m,x,y)=>{const [sx,sy]=toScreen(m.localToWorld(new THREE.Vector3(x,y,0)));x0=Math.min(x0,sx);x1=Math.max(x1,sx);y0=Math.min(y0,sy);y1=Math.max(y1,sy)};
@@ -682,7 +726,8 @@ function placeStrips(){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;const add=(m,x,y)=>{con
   let f=fit(top,0,0,bw*1.05,y0-58,1.15);top.style.transform=`translate(${cx-f.w*f.sc/2}px,${y0-14-f.h*f.sc}px) scale(${f.sc})`;
   f=fit(bot,0,0,bw*1.05,innerHeight-86-(y1+14),1.15);bot.style.transform=`translate(${cx-f.w*f.sc/2}px,${y1+14}px) scale(${f.sc})`;
   f=fit(rt,0,0,innerWidth-x1-40,(y1-y0)*1.05,1.2);const rtTop=(y0+y1)/2-f.h*f.sc/2;rt.style.transform=`translate(${x1+22}px,${rtTop}px) scale(${f.sc})`;
-  const fs=Math.min(f.sc*1.05,Math.max(.4,(rtTop-24)/(168+70)));folder.style.transform=`translate(${x1+22+(f.w*f.sc-250*fs)/2}px,${rtTop-14-168*fs}px) scale(${fs})`;folder.style.opacity=f.sc>=.32?1:0}
+  const fs=Math.min(f.sc*1.05,Math.max(.4,(rtTop-24)/(168+70)));folder.style.transform=`translate(${x1+22+(f.w*f.sc-250*fs)/2}px,${rtTop-14-168*fs}px) scale(${fs})`;folder.style.opacity=f.sc>=.32?1:0;
+  const rb=rtTop+f.h*f.sc+18,ts=Math.min(1,Math.max(.4,(innerHeight-90-rb)/200,0));tapeEl.style.transform=`translate(${x1+22+(f.w*f.sc-200*ts)/2}px,${rb}px) scale(${ts})`;const tOk=innerHeight-90-rb>70;tapeEl.style.opacity=tOk?1:0;tapeEl.style.pointerEvents=tOk?'':'none'}
 
 
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
