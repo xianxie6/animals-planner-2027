@@ -141,7 +141,7 @@ function drawIntro(){const g=cvIntro.getContext('2d');paperBase(g);holes(g);
   g.font=`500 36px ${F}`;g.fillText(`${mm}/01`,330,250);g.fillText(`${mm}/${days}`,330,305);
   g.strokeStyle='#2f63a8';g.lineWidth=4;g.beginPath();g.arc(910,250,40,0,7);g.stroke();g.fillStyle='#2f63a8';g.font=`600 36px ${F}`;g.textAlign='center';g.fillText(month+1,910,263);
   // watercolor-ish cat at desk
-  loadIllus(month);if(illus[month]){const im=illus[month],bw=760,bh=760*im.height/im.width;g.globalCompositeOperation='multiply';g.drawImage(im,(CW-bw)/2+20,440,bw,Math.min(bh,720));g.globalCompositeOperation='source-over'}else{
+  loadIllus(month);if(illus[month]===null){}else if(illus[month]){const im=illus[month],bw=760,bh=760*im.height/im.width;g.globalCompositeOperation='multiply';g.drawImage(im,(CW-bw)/2+20,440,bw,Math.min(bh,720));g.globalCompositeOperation='source-over'}else{
   const hue=['#e9a04a','#8f9aa6','#c98a5a','#d9b48a'][month%4];
   g.save();g.translate(CW/2+10,800);g.globalAlpha=.55;g.fillStyle='#e8b4ad';g.beginPath();g.ellipse(0,240,260,40,0,0,7);g.fill();g.globalAlpha=1;
   g.fillStyle='#4fa59a';g.fillRect(-240,110,480,46);g.strokeStyle='#333';g.lineWidth=7;g.beginPath();g.moveTo(-200,156);g.lineTo(-200,240);g.moveTo(200,156);g.lineTo(200,240);g.stroke();
@@ -192,7 +192,8 @@ function crease(c,left,right){const g=c.getContext('2d');
   if(right){const gr=g.createLinearGradient(CW-60,0,CW,0);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(1,'rgba(90,70,50,.14)');g.fillStyle=gr;g.fillRect(CW-60,0,60,CH)}}
 const illus={};
 function loadIllus(m){if(illus[m]!==undefined)return;illus[m]=null;const im=new Image();
-  im.onload=()=>{illus[m]=im;if(m===month)drawAll()};im.src=`illustrations/${String(m+1).padStart(2,'0')}.jpg`}
+  im.onload=()=>{illus[m]=im;if(m===month)drawAll()};im.onerror=()=>{illus[m]=false;if(m===month)drawAll()};im.src=`illustrations/${String(m+1).padStart(2,'0')}.jpg`}
+for(let m=0;m<12;m++)loadIllus(m);   // preload every month's illustration
 function drawAll(){CELLS=[];drawIntro();drawGrid(cvL,[0,1,2,3],false);drawGrid(cvR,[4,5,6],true);crease(cvIntro,false,true);crease(cvL,true,true);crease(cvR,true,false);drawPlaced();tIntro.needsUpdate=tL.needsUpdate=tR.needsUpdate=true}
 {const g=cvBack.getContext('2d');paperBase(g);g.textAlign='center';g.fillStyle='#cbbfae';g.font='300 170px Georgia';g.fillText('2027',CW/2,CH*.16);
  g.fillStyle='#9a8f82';g.font=`36px ${F}`;g.fillText('今 天 动 物 要 上 班',CW/2,CH*.16+80);g.font=`26px ${F}`;g.fillText('点击展开 ▸',CW/2,CH*.16+140)}
