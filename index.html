@@ -727,7 +727,10 @@ function placeStrips(){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;const add=(m,x,y)=>{con
   f=fit(bot,0,0,bw*1.05,innerHeight-86-(y1+14),1.15);bot.style.transform=`translate(${cx-f.w*f.sc/2}px,${y1+14}px) scale(${f.sc})`;
   f=fit(rt,0,0,innerWidth-x1-40,(y1-y0)*1.05,1.2);const rtTop=(y0+y1)/2-f.h*f.sc/2;rt.style.transform=`translate(${x1+22}px,${rtTop}px) scale(${f.sc})`;
   const fs=Math.min(f.sc*1.05,Math.max(.4,(rtTop-24)/(168+70)));folder.style.transform=`translate(${x1+22+(f.w*f.sc-250*fs)/2}px,${rtTop-14-168*fs}px) scale(${fs})`;folder.style.opacity=f.sc>=.32?1:0;
-  const rb=rtTop+f.h*f.sc+18,ts=Math.min(1,Math.max(.4,(innerHeight-90-rb)/200,0));tapeEl.style.transform=`translate(${x1+22+(f.w*f.sc-200*ts)/2}px,${rb}px) scale(${ts})`;const tOk=innerHeight-90-rb>70;tapeEl.style.opacity=tOk?1:0;tapeEl.style.pointerEvents=tOk?'':'none'}
+  {const rb=rtTop+f.h*f.sc+16,room=innerHeight-80-rb,bx=x1+22+f.w*f.sc/2;let ts,tx,ty;
+   if(room>=110){ts=Math.min(1,room/200);tx=bx-100*ts;ty=rb}   // under the right panel
+   else{const br=bot.getBoundingClientRect();ts=Math.max(.55,Math.min(.9,(innerWidth-br.right-30)/200));tx=Math.max(br.right+14,innerWidth-200*ts-16);ty=innerHeight-80-200*ts}   // bottom-right corner
+   tapeEl.style.transform=`translate(${tx}px,${ty}px) scale(${ts})`;tapeEl.style.opacity=1;tapeEl.style.pointerEvents=''}}
 
 
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
