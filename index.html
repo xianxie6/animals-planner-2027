@@ -673,7 +673,7 @@ GROUPS.forEach(gp=>{const el=document.createElement('div');el.className='strip'+
     im.className='stk';im.dataset.i=i;im.draggable=false;wr.appendChild(im);el.querySelector('.row').appendChild(wr);
     const setArt=src=>{ART[i]=dieCut(src);BACK[i]=backing(ART[i]);if(HOLO.has(i))HART[i]=foil(ART[i]);
       const url=ART[i].toDataURL();im.src=url;wr.style.setProperty('--m',`url(${url})`);if(STK.some(p=>p.i==i&&p.m==month))drawAll()};
-    const real=new Image();real.onload=()=>setArt(real);real.onerror=()=>setArt(placeholder(i));real.src=`stickers/s${String(i+1).padStart(2,'0')}.png`})});
+    const real=new Image();real.onload=()=>setArt(real);const nm=`stickers/s${String(i+1).padStart(2,'0')}`;real.onerror=()=>{real.onerror=()=>setArt(placeholder(i));real.src=nm+'.png'};real.src=nm+'.webp'})});
 // ---- liquid folder with the 36 ins stickers (indices 54–89 in the shared sticker system)
 const INS0=54,INSN=36;
 function fitArt(img){const S=256,pad=10,c=document.createElement('canvas');c.width=c.height=S;const g=c.getContext('2d'),sc=Math.min((S-pad*2)/img.width,(S-pad*2)/img.height);
@@ -684,7 +684,7 @@ stackEl.appendChild(folder);
 const popW=folder.querySelector('.pop .stkw'),popI=popW.querySelector('img'),peek=folder.querySelector('.peek');let insK=0;
 for(let k=0;k<INSN;k++){const i=INS0+k,im=new Image();im.onload=()=>{ART[i]=fitArt(im);BACK[i]=backing(ART[i]);
     if(k<5){const t=document.createElement('img');t.src=ART[i].toDataURL();Object.assign(t.style,{left:(k*40-4)+'px',top:(k%2?14:2)+'px',transform:`rotate(${[-14,9,-5,12,-9][k]}deg)`});peek.appendChild(t)}
-    if(k===0)setPop(0)};im.src=`stickers-ins/ins${String(k+1).padStart(2,'0')}.png`}
+    if(k===0)setPop(0)};const nm=`stickers-ins/ins${String(k+1).padStart(2,'0')}`;im.onerror=()=>{im.onerror=null;im.src=nm+'.png'};im.src=nm+'.webp'}
 function setPop(k){insK=(k+INSN)%INSN;const i=INS0+insK;if(!ART[i])return;const url=ART[i].toDataURL();popI.src=url;popI.dataset.i=i;popW.style.setProperty('--m',`url(${url})`);
   folder.querySelector('.pop').style.setProperty('--r',(Math.random()*16-8).toFixed(1)+'deg')}
 let popT=null;
