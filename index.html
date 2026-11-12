@@ -9,7 +9,8 @@
 html,body{height:100%;overflow:hidden;background:#e8e3dc;font-family:"PingFang SC",sans-serif}
 canvas{display:block}
 .ui{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
-.ui button{border:0;padding:9px 18px;border-radius:20px;background:#3b2414;color:#f6e7d2;font-size:13px;cursor:pointer;box-shadow:0 4px 12px #0003}
+.ui button{border:0;padding:9px 18px;border-radius:20px;background:#3b2414;color:#f6e7d2;font-size:13px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px #0003}
+.ui button.on{background:#f6e7d2;color:#3b2414;box-shadow:inset 0 0 0 2px #3b2414,0 4px 12px #0003}
 .hint{position:fixed;top:16px;width:100%;text-align:center;font-size:12px;color:#8a7d70;letter-spacing:2px;pointer-events:none}
 #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#8a7d70;letter-spacing:3px}
 #ink{position:fixed;z-index:20;background:rgba(255,253,240,.35);border:1.5px dashed rgba(47,99,168,.45);border-radius:3px;outline:none;resize:none;color:#24324f;font-family:"Kaiti SC","STKaiti","Bradley Hand",cursive;padding:0 2px;overflow:hidden;caret-color:#2f63a8}
@@ -61,6 +62,40 @@ canvas{display:block}
   filter:drop-shadow(0 0 .5px #b9ab95)}
 .stkw.used::after{display:none}
 #pull{position:fixed;inset:0;width:100vw;height:100vh;z-index:29;pointer-events:none}
+.stampSlot{position:fixed;left:0;top:0;width:200px;height:200px;transform-origin:0 0;z-index:11;border:2px dashed #b9a48c;border-radius:22px;display:flex;align-items:center;justify-content:center;text-align:center;color:#a08a72;font:600 20px/1.5 "PingFang SC";background:#fff3}
+.stampSlot small{font-size:13px;font-weight:400}
+.stampSlot{cursor:grab;perspective:700px}
+.stampSlot>span{transition:opacity .2s;opacity:0}
+.stampSlot.out>span{opacity:1}
+.stampSlot .sShadow{position:absolute;left:54%;top:58%;width:130px;height:46px;margin:-23px 0 0 -65px;border-radius:50%;background:radial-gradient(#3b241855,#3b241800 70%);transition:transform .25s,opacity .25s}
+.stampSlot:hover .sShadow{transform:scale(1.18) translateY(6px);opacity:.75}
+.stampSlot .stamp3d{position:absolute;left:50%;top:50%;transition:transform .25s cubic-bezier(.3,1.4,.5,1)}
+.stampSlot:hover .stamp3d{transform:translateY(-6px)}
+.stampSlot.out .stamp3d,.stampSlot.out .sShadow{opacity:0;transition:none}
+.blk{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.blk>div{position:absolute;backface-visibility:hidden;box-sizing:border-box}
+.blk .wood{background:linear-gradient(180deg,#7a4f2a,#6B4423 30%,#4A2C17),repeating-linear-gradient(90deg,#0000 0 7px,#2a14081c 7px 8px,#0000 8px 15px,#ffd9a00d 15px 17px);background-blend-mode:multiply;
+  border-radius:6px;box-shadow:inset 0 1.5px 0 #f3c98a99,inset 0 -1px 0 #2a140866,inset 1.5px 0 0 #e8b77044,inset -1.5px 0 0 #e8b77044}
+.blk .wood::after{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-radial-gradient(ellipse 160% 40% at 30% 130%,#0000 0 9px,#2a140822 10px,#0000 12px)}
+.blk .topf{border-radius:10px;background:linear-gradient(135deg,#7a4f2a,#4A2C17);box-shadow:inset 0 0 0 1.5px #f3c98a88}
+.blk .topf img,.blk .botf img{position:absolute;inset:7%;width:86%;height:86%;border-radius:6px}
+.blk .botf{border-radius:10px;background:#4A2C17}
+.blk .botf img{inset:4%;width:92%;height:92%}
+/* brass bulldog clip (书写模式) */
+#clip{position:fixed;left:0;top:0;width:140px;height:120px;z-index:28;transform-origin:70px 84px;pointer-events:none;perspective:420px}
+#clip .body{position:absolute;inset:0;transition:transform .18s,filter .25s;filter:drop-shadow(5px 9px 6px rgba(60,35,10,.32));pointer-events:none}
+#clip svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#clip svg *{pointer-events:visiblePainted;cursor:pointer}
+#clip .jaw{transform-origin:70px 54.5px;transform-box:view-box}
+#clip.idle:hover .body{transform:translateY(-5px);filter:drop-shadow(8px 15px 9px rgba(60,35,10,.26))}
+#clip.lift .body{filter:drop-shadow(14px 26px 12px rgba(60,35,10,.18))}
+#clip.clamped .body{filter:drop-shadow(1.5px 3px 2px rgba(40,22,5,.55)) drop-shadow(4px 8px 6px rgba(60,35,10,.22))}
+#stampDel{position:fixed;z-index:32;display:none;border:0;border-radius:14px;padding:5px 12px;background:#3b2418;color:#fbf4e6;font:600 12px 'PingFang SC';box-shadow:2px 3px 8px #0003;cursor:pointer}
+#stampFly{position:fixed;inset:0;z-index:31;cursor:grabbing;display:none}
+#stampFly.on{display:block}
+#stampFly .fShadow{position:absolute;left:0;top:0;border-radius:50%;background:radial-gradient(#2a1810,#2a181000 70%);pointer-events:none}
+#stampFly .ghost{position:absolute;left:0;top:0;opacity:.15;pointer-events:none;display:none}
+#stampFly .stamp3d{position:absolute;left:0;top:0;transform-style:preserve-3d;pointer-events:none}
 .tape{position:fixed;left:0;top:0;width:200px;height:200px;transform-origin:0 0;z-index:11;cursor:grab}
 .tape img{width:100%;height:100%;transition:transform .25s;filter:drop-shadow(0 6px 6px rgba(80,40,20,.18))}
 .tape:hover img{transform:rotate(-6deg) translateY(-3px)}
@@ -68,6 +103,17 @@ canvas{display:block}
 .tape:hover span{opacity:.85}
 #peel{position:fixed;z-index:30;pointer-events:none}
 .strip .stkw:not(.used) .stk:hover{transform:scale(1.06) rotate(-3deg)}
+/* 书写模式: the two strips join side by side into one long strip, tighter spacing */
+.strip.one.wm{padding:3px 4px 3px 4px;gap:4px}
+.strip.one.wm .lab{font-size:9px;letter-spacing:0;line-height:1.05;padding:3px 2px}
+.strip.one.wm .row{gap:0}
+.strip.one.wm .stkw{margin:0 -3px}
+.strip.one.wm.t,.strip.one.wm.t::after{border-radius:12px 0 0 12px}
+.strip.one.wm.b,.strip.one.wm.b::after{border-radius:0 12px 12px 0}
+/* one-row mode (zoomed in): the hovered sticker pops out big, growing downward from the top edge */
+.strip.one .stkw:hover{z-index:5}
+.strip.one .stk{transform-origin:50% 0;transition:transform .18s cubic-bezier(.3,1.5,.5,1),filter .18s}
+.strip.one .stkw:not(.used) .stk:hover{transform:scale(var(--pop,2.6)) rotate(-3deg);filter:drop-shadow(2px 6px 6px #3b241840)}
 
 #drag{position:fixed;z-index:30;pointer-events:none;width:84px;height:84px;filter:drop-shadow(0 14px 10px #0004);animation:peel .35s ease-out forwards}
 @keyframes peel{0%{transform:translate(-50%,-50%) perspective(300px) rotateX(0) scale(.7)}60%{transform:translate(-50%,-50%) perspective(300px) rotateX(38deg) rotateZ(-8deg) scale(1.05)}100%{transform:translate(-50%,-50%) perspective(300px) rotateX(12deg) rotateZ(-4deg) scale(1)}}
@@ -84,11 +130,11 @@ canvas{display:block}
 <div id="filewarn" style="position:fixed;inset:0;z-index:99;background:#e9e7e3ee;display:none;align-items:center;justify-content:center;text-align:center;color:#3b2414;font:15px/1.9 'PingFang SC',sans-serif">
 <div>直接双击打开时，浏览器会拦截插画和贴纸图片，只能显示临时图。<br>请双击同文件夹里的 <b>「打开手账.command」</b>，<br>或在终端运行 <code>python3 -m http.server 8765</code> 后访问 localhost:8765</div></div>
 <script>if(location.protocol==='file:')document.getElementById('filewarn').style.display='flex'</script>
-<div class="hint">点封面打开 · 点挂件摇铃 · 拖动旋转视角 · 点蓝色标签换月份 · 点日期直接写 · 拖月份页翻页 · 拖贴纸到任意位置（可再揭起挪动，右键撕掉） · 滚轮缩放</div>
+<div class="hint">点封面打开 · 点挂件摇铃 · 拖动旋转视角 · 点蓝色标签换月份 · 点日期直接写 · 拖月份页翻页 · 拖贴纸到任意位置（可再揭起挪动、叠贴，Alt+点选下层，Shift+右键压到底层，右键撕掉） · 拿起印章盖到页面上（盖完仍在手上可连盖，Esc 或点回印章位放回） · 滚轮缩放</div>
 <div id="stack"></div>
 <textarea id="ink" hidden spellcheck="false"></textarea>
 <div id="note" hidden><b></b><textarea placeholder="写下计划…（回车保存）"></textarea><small>Shift+回车换行 · 清空即删除</small></div>
-<div class="ui"><button id="b1">打开封面</button><button id="prev">‹</button><button id="next">›</button><button id="tg">收起贴纸栏</button><button id="bk">备份</button><button id="rs">恢复</button><input type="file" id="rsf" accept=".json,application/json" hidden></div>
+<div class="ui"><button id="b1">打开封面</button><button id="prev">‹</button><button id="next">›</button><button id="wm">书写模式</button><button id="tg">收起贴纸栏</button><button id="bk">备份</button><button id="rs">恢复</button><button id="bgm">♪ 轻音乐：关</button><input type="file" id="rsf" accept=".json,application/json" hidden></div>
 <div id="toast" hidden><span></span><button id="tbk">立即备份</button><button id="tx">×</button></div>
 <script type="module">
 import * as THREE from 'three';
@@ -415,7 +461,7 @@ mArt.position.set(-1.6+1.65,-1.85-1.65,0.18);swing.add(mArt);
 /* ---------- interaction & animation ---------- */
 const state={open:0,unf:0},cur={c:0,f:0,p2:0,p3:0};
 const b1=document.getElementById('b1');
-function setOpen(o){if(o){setUnf(1);return}state.open=0;state.unf=0;sync()}
+function setOpen(o){if(o){setUnf(1);return}if(writeMode)setWrite(false);state.open=0;state.unf=0;sync()}
 function setUnf(u){const was=state.open;state.unf=u;if(u)state.open=1;sync();setTimeout(()=>sfx('flip',.45),was?800:1700);setTimeout(()=>sfx('flip',.4),was?1600:2500)}
 function sync(){sfx('flip',.5);b1.textContent=state.open?'合上':'打开封面';om+=state.open?1.5:-1.5}
 b1.onclick=()=>setOpen(state.open?0:1);
@@ -448,6 +494,16 @@ function flipMonth(d){if(flip||!state.open||cur.c<.95)return;const nm=month+d;if
   flipTex.needsUpdate=true;flipMesh.visible=true;bendFlip(flip.from,0);sfx('flip',.55)}
 function stepFlip(dt){if(!flip)return;flip.t=Math.min(1,flip.t+dt/0.8);const e=flip.t<.5?2*flip.t*flip.t:1-Math.pow(-2*flip.t+2,2)/2;
   bendFlip(flip.from+(flip.to-flip.from)*e,Math.sin(Math.PI*flip.t)*(flip.to>flip.from?-.9:.9));if(flip.t>=1){flipMesh.visible=false;flip=null;pat()}}
+// 书写模式: lock the view on the unfolded pages (no rotate / zoom / pointer tilt); a single click on any date writes there
+var writeMode=false;const wmBtn=document.getElementById('wm');
+function setWrite(on){writeMode=on;clipGo(on);if(on&&!state.unf)setUnf(1);controls.enableRotate=controls.enablePan=!on;wmBtn.textContent=on?'退出书写':'书写模式';wmBtn.classList.toggle('on',on);
+  if(!on){focusMode=false;if(editing)finishEdit()}sfx('pat',.3)}
+wmBtn.onclick=()=>setWrite(!writeMode);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&writeMode&&!editing&&!held&&!selStamp)setWrite(false)});
+renderer.domElement.addEventListener('pointermove',e=>{if(!writeMode||dragEl||peel||held)return;if(stickerAt(e)!=null)return;
+  ptr.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);ray.setFromCamera(ptr,camera);const hit=ray.intersectObjects([s2.front,s3.front],false)[0];
+  let on=false;if(hit){const c=hit.object===s2.front?cvL:cvR,px=hit.uv.x*CW,py=(1-hit.uv.y)*CH;on=CELLS.some(k=>k.c===c&&px>=k.x&&px<k.x+k.w&&py>=k.y&&py<k.y+k.h)}
+  renderer.domElement.style.cursor=on?'text':''});
 document.getElementById('tg').onclick=e=>{const h=stackEl.style.display!=='none';stackEl.style.display=h?'none':'';e.target.textContent=h?'展开贴纸栏':'收起贴纸栏'};
 // ---- backup / restore: everything you wrote and stuck lives in this browser; export it to a file you keep
 const toastEl=document.getElementById('toast');
@@ -514,7 +570,7 @@ ink.addEventListener('input',()=>{for(let k=0;k<3;k++)setTimeout(()=>sfx('pen',.
 addEventListener('keydown',e=>{if(e.key=='Escape'&&!editing)focusMode=false});
 // wheel = how close the view is (persists; overrides the auto-fit only by a factor)
 controls.enableZoom=false;
-renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();userZoom=Math.min(2.2,Math.max(.3,userZoom*Math.exp(e.deltaY*.0012)))},{passive:false});
+renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();if(writeMode)return;userZoom=Math.min(2.2,Math.max(.3,userZoom*Math.exp(e.deltaY*.0012)))},{passive:false});
 /* ---------- sound: one synth used live AND for offline rendering (recording) ---------- */
 const SFX_LOG=[];
 function nbuf(ctx,dur,shape){const b=ctx.createBuffer(1,Math.max(1,Math.floor(ctx.sampleRate*dur)),ctx.sampleRate),d=b.getChannelData(0);
@@ -541,6 +597,27 @@ const SYN={
 };
 let ac;function sfx(type,v=.4){SFX_LOG.push({type,v,t:performance.now()});
   try{ac=ac||new AudioContext();if(ac.state==='suspended')ac.resume();SYN[type](ac,ac.currentTime+.005,v)}catch(e){}}
+// ---- background music (synthesized, very quiet): a slow lo-fi pad + gentle plucks. Button toggles 关 / 轻音乐
+const BG={on:!!load('pn27-bgm',0),master:null,music:null,timer:0,next:0,step:0};
+const bgBtn=document.getElementById('bgm');const bgLabel=()=>bgBtn.textContent='♪ 轻音乐：'+(BG.on?'开':'关');bgLabel();
+function bgCtx(){ac=ac||new AudioContext();if(ac.state==='suspended')ac.resume();if(!BG.master){BG.master=ac.createGain();BG.master.gain.value=0;BG.master.connect(ac.destination)}return ac}
+// Fmaj7 → Em7 → Dm7 → Cmaj7, 4 s each; warm triangle pad through a low-pass, plus sparse sine "piano" notes from the chord
+const CHORDS=[[53,57,60,64],[52,55,59,62],[50,53,57,60],[48,52,55,59]],mtof=m=>440*Math.pow(2,(m-69)/12);
+function startMusic(c){if(BG.music)return;const out=c.createGain();out.gain.value=.55;const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1400;lp.connect(out).connect(BG.master);
+  BG.music={out,lp};BG.next=c.currentTime+.1;BG.step=0;
+  const sched=()=>{if(!BG.music)return;while(BG.next<c.currentTime+2){const t=BG.next,ch=CHORDS[BG.step%4];
+      ch.forEach((m,i)=>{[0,.08].forEach(det=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=mtof(m)*(1+det*.003*(i%2?1:-1));
+        g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+1.4);g.gain.setValueAtTime(.05,t+3.2);g.gain.linearRampToValueAtTime(0,t+4.6);o.connect(g).connect(lp);o.start(t);o.stop(t+4.7)})});
+      const bass=c.createOscillator(),bg=c.createGain();bass.type='sine';bass.frequency.value=mtof(ch[0]-12);bg.gain.setValueAtTime(0,t);bg.gain.linearRampToValueAtTime(.09,t+.3);bg.gain.exponentialRampToValueAtTime(.001,t+3.8);bass.connect(bg).connect(lp);bass.start(t);bass.stop(t+3.9);
+      for(let k=0;k<8;k++){if(Math.random()<.45)continue;const tt=t+k*.5+Math.random()*.04,m=ch[Math.random()*4|0]+12+(Math.random()<.3?12:0),o=c.createOscillator(),g=c.createGain();
+        o.type='sine';o.frequency.value=mtof(m);g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(.07,tt+.01);g.gain.exponentialRampToValueAtTime(.0008,tt+1.6);o.connect(g).connect(out);o.start(tt);o.stop(tt+1.7)}
+      BG.next+=4;BG.step++}};
+  sched();BG.timer=setInterval(sched,500)}
+function stopMusic(){if(!BG.music)return;const m=BG.music;BG.music=null;clearInterval(BG.timer);m.out.gain.setTargetAtTime(0,ac.currentTime,.4);setTimeout(()=>m.out.disconnect(),3000)}
+function applyBg(){const c=bgCtx(),m=BG.on;m?startMusic(c):stopMusic();
+  BG.master.gain.cancelScheduledValues(c.currentTime);BG.master.gain.setTargetAtTime(m?.16:0,c.currentTime,m?1.2:.4)}   // quiet bed under the interaction sounds
+bgBtn.onclick=()=>{BG.on=!BG.on;try{localStorage.setItem('pn27-bgm',BG.on?1:0)}catch(_){}bgLabel();applyBg()};
+if(BG.on)addEventListener('pointerdown',function f(){removeEventListener('pointerdown',f);applyBg()});   // browsers only allow sound after a click: resume the saved choice on the first one
 const ding=(v=.35)=>sfx('bell',v),paperRip=(v=.5)=>sfx('rip',v),pat=()=>sfx('pat',.7);
 async function renderAudio(t0,dur){const sr=32000,c=new OfflineAudioContext(1,Math.ceil(sr*dur),sr);
   SFX_LOG.forEach(e=>{const t=(e.t-t0)/1000;if(t>=0&&t<dur-1)SYN[e.type](c,t,e.v)});
@@ -587,9 +664,8 @@ function foil(a){const c=document.createElement('canvas');c.width=a.width;c.heig
 const stackEl=document.getElementById('stack');
 // --- three sticker strips around the book: top = 心情·节日, bottom = 事项·工作, right = 生活·吃喝
 const R=(a,b)=>Array.from({length:b-a+1},(_,k)=>a+k);
-const GROUPS=[{id:'stTop',t:'心情 · 天气',c:'#7c96c9',rows:2,ids:[...R(36,44),18,19,20,...R(45,53)]},
-  {id:'stBot',t:'事项 · 工作 · 节日',c:'#e98a6b',rows:2,ids:[...R(0,8),...R(21,26),...R(9,17)]},
-  {id:'stRight',t:'生活 · 吃喝',c:'#d9a441',ids:[27,28,29,30,31,32,33,34,35],v:true}];
+const GROUPS=[{id:'stTop',t:'心情 · 天气 · 吃喝',c:'#7c96c9',rows:3,ids:[...R(36,44),18,19,20,...R(45,53),...R(27,35)]},
+  {id:'stBot',t:'事项 · 工作 · 节日',c:'#e98a6b',rows:2,ids:[...R(0,8),...R(21,26),...R(9,17)]}];
 GROUPS.forEach(gp=>{const el=document.createElement('div');el.className='strip'+(gp.v?' v':'');el.id=gp.id;el.style.setProperty('--c',gp.c);
   el.innerHTML=`<div class="lab">${gp.t}</div><div class="row"></div>`;if(gp.rows)el.style.setProperty('--cols',Math.ceil(gp.ids.length/gp.rows));stackEl.appendChild(el);
   el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--hx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');el.style.setProperty('--hy',((e.clientY-r.top)/r.height*100).toFixed(1)+'%')});
@@ -621,6 +697,7 @@ folder.addEventListener('click',e=>{if(!e.target.closest('.pop')){folder.classLi
 const TAPE0=1000,PIECE=226,TH=52;   // piece size in sticker-canvas px (≈ one date cell wide)
 let tapeTex=null,tapeK=load('pn27-tape',0);
 const tapeEl=document.createElement('div');tapeEl.className='tape';tapeEl.innerHTML='<img src="tape/apple-roll.webp" draggable="false"><span>拉我撕一段</span>';stackEl.appendChild(tapeEl);
+const stampEl=document.createElement('div');stampEl.className='stampSlot';stampEl.innerHTML='<span>印章位<br><small>拿起来盖一下</small></span>';stackEl.appendChild(stampEl);
 const rollImg=tapeEl.querySelector('img');
 {const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=600;const g=c.getContext('2d');g.drawImage(im,0,0,600,600);
   const d=g.getImageData(0,0,600,600),p=d.data;for(let j=0;j<p.length;j+=4){const m=Math.min(p[j],p[j+1],p[j+2]),sp=Math.max(p[j],p[j+1],p[j+2])-m;   // knock out the white studio background, keep the warm core
@@ -633,7 +710,7 @@ function texAt(g,off,x,w,h){const tw=tapeTex.width,sc=h/tapeTex.height;let sx=(o
 function tapePiece(k){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),x0=(256-PIECE)/2,y0=(256-TH)/2;
   const L=tearEdge(k),Rr=tearEdge(k+1);g.translate(x0,y0);g.beginPath();L.forEach(([x,y],j)=>j?g.lineTo(x,y):g.moveTo(x,y));
   for(let j=Rr.length-1;j>=0;j--)g.lineTo(PIECE+Rr[j][0],Rr[j][1]);g.closePath();g.clip();texAt(g,k*PIECE,-6,PIECE+12,TH);return c}
-function tapeArt(i){if(ART[i]||!tapeTex||i<TAPE0)return;ART[i]=tapePiece(i-TAPE0);BACK[i]=backing(ART[i])}
+function tapeArt(i){if(ART[i]||!tapeTex||i<TAPE0||i>=STAMP0)return;ART[i]=tapePiece(i-TAPE0);BACK[i]=backing(ART[i])}
 const tx=new Image();tx.onload=()=>{const sy=Math.round(tx.height*.345),sh=Math.round(tx.height*.3),c=document.createElement('canvas');c.width=tx.width;c.height=sh;
   const g=c.getContext('2d');g.drawImage(tx,0,sy,tx.width,sh,0,0,tx.width,sh);const d=g.getImageData(0,0,c.width,sh),p=d.data;
   for(let j=0;j<p.length;j+=4){const m=Math.min(p[j],p[j+1],p[j+2]);p[j+3]=m>238?0:m>215?(238-m)/23*255:255}g.putImageData(d,0,0);   // white → transparent
@@ -655,6 +732,161 @@ addEventListener('pointermove',e=>{if(!pull)return;const acc=drawPull(e.clientX,
     pullCv.getContext('2d').clearRect(0,0,pullCv.width,pullCv.height);pull=null;rollImg.style.transition='transform .4s';rollImg.style.transform='';setTimeout(()=>rollImg.style.transition='',400);
     dragI=i;dragEl=document.createElement('img');dragEl.id='drag';dragEl.src=ART[i].toDataURL();sizeDrag(1.9);dragEl.dataset.s=1.9;document.body.appendChild(dragEl);moveDrag(e);paperRip(.75)}});
 addEventListener('pointerup',()=>{if(!pull)return;pull=null;controls.enabled=true;pullCv.getContext('2d').clearRect(0,0,pullCv.width,pullCv.height);rollImg.style.transform='';sfx('pat',.3)});   // let go early → it rolls back
+// ---- brass bulldog clip: rests above the ins folder; follows 书写模式 — flies over and clamps the top of the book, flies back on exit
+const CLIP_SVG=`<defs>
+ <linearGradient id="cbR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A5A28"/><stop offset=".22" stop-color="#C9A45C"/><stop offset=".36" stop-color="#F0D9A0"/><stop offset=".52" stop-color="#A8813F"/><stop offset=".85" stop-color="#6e4f22"/><stop offset="1" stop-color="#4f3815"/></linearGradient>
+ <linearGradient id="cbP" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d2ae66"/><stop offset=".35" stop-color="#A8813F"/><stop offset=".7" stop-color="#7A5A28"/><stop offset="1" stop-color="#94703a"/></linearGradient>
+ <linearGradient id="cbS" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff6d8" stop-opacity=".45"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <filter id="cbN" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9 .06" numOctaves="2" seed="4"/>
+  <feColorMatrix values="0 0 0 0 .2  0 0 0 0 .13  0 0 0 0 .05  0 0 0 .5 -.12"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+ <filter id="cbB"><feGaussianBlur stdDeviation=".9"/></filter></defs>`;
+const CLIP_ON=false;   // clip hidden for now — flip to true to bring it back
+const clipEl=document.createElement('div');clipEl.id='clip';clipEl.className='idle';clipEl.title='书写模式';
+clipEl.innerHTML=`<div class="body">
+ <svg class="jawS" viewBox="0 0 140 120"><g class="jaw">
+  <path d="M16 55H124L129 103Q129 110 122 110H18Q11 110 11 103Z" fill="url(#cbP)" stroke="#4a3312" stroke-width="1.2"/>
+  <path d="M16 55H124L129 103Q129 110 122 110H18Q11 110 11 103Z" fill="url(#cbS)"/>
+  <path d="M16 55H124L129 103Q129 110 122 110H18Q11 110 11 103Z" filter="url(#cbN)" fill="#000"/>
+  <path class="inner" d="M16 55H124L129 103Q129 110 122 110H18Q11 110 11 103Z" fill="#2a1a08" opacity="0"/>
+  <rect x="11" y="103" width="118" height="7" rx="3.5" fill="#5c4219" stroke="#3a2709" stroke-width="1"/><rect x="16" y="104" width="108" height="1.4" rx=".7" fill="#e3c27e" opacity=".7"/>
+ </g></svg>
+ <svg viewBox="0 0 140 120">${CLIP_SVG}
+  <path d="M24 54L31 27Q33 19 41 19H99Q107 19 109 27L116 54Z" fill="url(#cbP)" stroke="#4a3312" stroke-width="1.2"/>
+  <path d="M24 54L31 27Q33 19 41 19H99Q107 19 109 27L116 54Z" filter="url(#cbN)" fill="#000"/>
+  <rect x="26" y="5" width="88" height="25" rx="12.5" fill="url(#cbR)" stroke="#4a3312" stroke-width="1.2"/>
+  <rect x="26" y="5" width="88" height="25" rx="12.5" filter="url(#cbN)" fill="#000"/>
+  <rect x="34" y="10.5" width="70" height="4" rx="2" fill="#F0D9A0" filter="url(#cbB)" opacity=".9"/>
+  <rect x="7" y="50" width="126" height="9" rx="4.5" fill="url(#cbR)" stroke="#4a3312" stroke-width="1"/>
+  <circle cx="11" cy="54.5" r="4" fill="#e6c886" opacity=".75"/><circle cx="129" cy="54.5" r="4" fill="#c9a45c" opacity=".6"/>
+ </svg></div>`;
+document.body.appendChild(clipEl);if(!CLIP_ON)clipEl.style.display='none';
+const jawEl=clipEl.querySelector('.jaw'),jawIn=clipEl.querySelector('.inner');
+const CL={mode:'idle',t0:0,idle:{x:0,y:0,s:1,show:1},book:{x:0,y:0},from:null};
+function jaw(open,ms){jawEl.animate([{transform:`rotateX(${open?0:-35}deg)`},{transform:`rotateX(${open?-35:0}deg)`}],{duration:ms,easing:open?'ease-out':'ease-in',fill:'forwards'});
+  jawIn.animate([{opacity:open?0:.35},{opacity:open?.35:0}],{duration:ms,fill:'forwards'})}
+function clipGo(on){const now=performance.now();if(on&&(CL.mode==='clamped'||CL.mode==='in'))return;if(!on&&(CL.mode==='idle'||CL.mode==='out'))return;
+  clipEl.title=on?'退出书写':'书写模式';CL.from={...CL.cur||CL.idle};CL.mode=on?'in':'out';CL.t0=now;CL.fired=0;clipEl.className='lift';jaw(true,140)}
+clipEl.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault()});
+clipEl.addEventListener('click',e=>{e.stopPropagation();if(CL.mode==='in'||CL.mode==='out')return;setWrite(!writeMode)});
+const lerp=(a,b,t)=>a+(b-a)*t,backOut=u=>{const c=1.5;return 1+(c+1)*Math.pow(u-1,3)+c*Math.pow(u-1,2)};
+function clipFrame(){const now=performance.now(),I=CL.idle,B=CL.book;let x,y,r,sc,op=1;
+  if(CL.mode==='idle'){x=I.x;y=I.y;r=-8;sc=I.s;op=I.show}
+  else if(CL.mode==='clamped'){x=B.x;y=B.y;r=0;sc=1}
+  else if(CL.mode==='in'){const t=now-CL.t0,A=CL.from;
+    if(t<120){const u=t/120;x=A.x;y=A.y-12*u;r=A.r;sc=lerp(A.s,A.s*1.1,u)}
+    else if(t<560){const u=(t-120)/440,e=backOut(u);x=lerp(A.x,B.x,e);y=lerp(A.y-12,B.y-26,e)-Math.sin(u*Math.PI)*Math.max(20,Math.min(130,(A.y+B.y)/2-110));r=lerp(A.r,0,Math.min(1,e));sc=lerp(A.s*1.1,1.1,u)}
+    else{const u=Math.min(1,(t-560)/60);x=B.x;y=lerp(B.y-26,B.y,u*u);r=0;sc=lerp(1.1,1,u*u);
+      if(u>=1&&!CL.fired){CL.fired=1;jaw(false,80);sfx('tick',.7);sfx('pat',.35);clipEl.className='clamped';
+        renderer.domElement.animate([{transform:'translate(0,0)'},{transform:'translate(0,1.5px)'},{transform:'translate(0,-1px)'},{transform:'translate(0,0)'}],{duration:150});
+        clipEl.querySelector('.body').animate([{transform:'scale(1.03)'},{transform:'scale(1)'}],{duration:160,easing:'ease-out'})}
+      if(t>700)CL.mode='clamped'}}
+  else{const t=now-CL.t0,A=CL.from;   // out
+    if(t<100){const u=t/100;x=A.x;y=A.y-26*u;r=0;sc=lerp(1,1.1,u)}
+    else if(t<520){const u=(t-100)/420,e=backOut(u);x=lerp(A.x,I.x,e);y=lerp(A.y-26,I.y-12,e)-Math.sin(u*Math.PI)*Math.max(20,Math.min(110,(A.y+I.y)/2-110));r=lerp(0,-8,Math.min(1,e));sc=lerp(1.1,I.s*1.1,u)}
+    else{const u=Math.min(1,(t-520)/80);x=I.x;y=lerp(I.y-12,I.y,u);r=-8;sc=lerp(I.s*1.1,I.s,u);
+      if(u>=1&&!CL.fired){CL.fired=1;jaw(false,80);sfx('tick',.4);clipEl.className='idle';CL.mode='idle'}}}
+  CL.cur={x,y,r,s:sc};clipEl.style.opacity=op;clipEl.style.visibility=op&&CLIP_ON?'':'hidden';
+  clipEl.style.transform=`translate(${x-70}px,${y-84}px) rotate(${r}deg) scale(${sc})`}
+// ---- wooden cat stamp: rests flat in the slot; pick it up and it follows the pointer as a 3D block; press on a page to leave an ink mark (sticker index STAMP0)
+// Stamp designs are config: add an entry (id, name, art(colour) → SVG markup in a 200×200 box) to get a new stamp. Ink marks use sticker index STAMP0 + design*10 + variant.
+const STAMP0=2000,STAMP_S=1.05,INK='#4a2618',NV=6;
+const STAMPS=[{id:'cat',name:'今天动物要上班',art:c=>`
+ <g fill="none" stroke="${c}" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke-width="3" d="M70 64C63 58 77 52 70 46M100 60C93 54 107 48 100 42M130 64C123 58 137 52 130 46"/>
+  <path stroke-width="4.5" d="M62 108L66 70L84 86Q100 80 116 86L134 70L138 108M58 118C54 92 146 92 142 118"/>
+  <path stroke-width="3.5" d="M79.2 102.5A5 5 0 0 1 88.8 102.5M111.2 102.5A5 5 0 0 1 120.8 102.5M67 120A9 5 0 0 1 85 120M115 120A9 5 0 0 1 133 120M64 140H136"/>
+  <path stroke-width="2" d="M80 109L64 104M80 115L64 116M120 109L136 104M120 115L136 116"/>
+  <path stroke-width="5" d="M46 120H154L144 160Q100 170 56 160ZM158 124A12 12 0 0 1 158 148"/>
+ </g>
+ <path fill="${c}" d="M96 110H104L100 114Z"/>
+ <g fill="${c}" text-anchor="middle"><text x="100" y="43" font-family="PingFang SC,sans-serif" font-weight="800" font-size="21">今天动物要上班</text>
+ <text x="100" y="186" font-family="Avenir Next,sans-serif" font-weight="800" font-size="17">2027</text></g>`}];
+const svgURL=b=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="400" height="400">${b}</svg>`);
+const FRAME=c=>`<rect x="8" y="8" width="184" height="184" rx="22" fill="none" stroke="${c}" stroke-width="5"/><rect x="16" y="16" width="168" height="168" rx="16" fill="none" stroke="${c}" stroke-width="2"/>`;
+// cream top label and the mirrored rubber relief (light from top-left), as plain SVG
+const topSVG=d=>svgURL(`<rect width="200" height="200" fill="#fbf4e6"/>${FRAME('#3B2418')}${d.art('#3B2418')}`);
+const rubberSVG=d=>svgURL(`<defs><filter id="r"><feDropShadow dx="1.2" dy="1.6" stdDeviation=".8" flood-color="#000" flood-opacity=".8"/><feDropShadow dx="-.6" dy="-.8" stdDeviation=".3" flood-color="#a07050" flood-opacity=".55"/></filter></defs>
+  <rect width="200" height="200" fill="#2A1810"/><g transform="translate(200 0) scale(-1 1)" filter="url(#r)">${d.art('#5c3a26')}</g>`);
+// ink: displaced edges + grain speckles + patchy fade; each variant uses a different noise seed
+const inkSVG=(d,seed)=>svgURL(`<defs><filter id="k" x="-5%" y="-5%" width="110%" height="110%">
+  <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="${seed}" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G" result="d"/>
+  <feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="${seed+11}" result="big"/>
+  <feColorMatrix in="big" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 -.1" result="patch"/>
+  <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="${seed+5}" result="g"/>
+  <feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 0 0 0 -3.4" result="grain"/>
+  <feComposite in="d" in2="patch" operator="in" result="a"/><feComposite in="a" in2="grain" operator="in"/></filter></defs>
+  <g filter="url(#k)">${d.art(INK)}</g>`);
+STAMPS.forEach((d,di)=>{for(let v=0;v<NV;v++){const im=new Image();im.onload=()=>{const a=document.createElement('canvas');a.width=a.height=256;a.getContext('2d').drawImage(im,18,18,220,220);
+  const i=STAMP0+di*10+v;ART[i]=a;BACK[i]=backing(a);drawAll()};im.src=inkSVG(d,v*17+3)}});
+let stampD=0;   // design currently in the slot
+function buildBlock(W,d){const D=Math.round(W*.6),el=document.createElement('div');el.className='stamp3d';
+  // wood faces shaded for a top-left light: top/left edges brighter, bottom/right darker
+  el.innerHTML=`<div class="blk" style="width:${W}px;height:${W}px;left:${-W/2}px;top:${-W/2}px">
+   <div class="topf" style="width:${W}px;height:${W}px;transform:translateZ(${D/2}px)"><img src="${topSVG(d)}"></div>
+   <div class="botf" style="width:${W}px;height:${W}px;transform:rotateX(180deg) translateZ(${D/2}px)"><img src="${rubberSVG(d)}"></div>
+   <div class="wood" style="width:${W}px;height:${D}px;top:${(W-D)/2}px;transform:rotateX(-90deg) translateZ(${W/2}px);filter:brightness(.82)"></div>
+   <div class="wood" style="width:${W}px;height:${D}px;top:${(W-D)/2}px;transform:rotateX(90deg) translateZ(${W/2}px);filter:brightness(1.12)"></div>
+   <div class="wood" style="width:${D}px;height:${W}px;left:${(W-D)/2}px;transform:rotateY(90deg) translateZ(${W/2}px);filter:brightness(.72)"></div>
+   <div class="wood" style="width:${D}px;height:${W}px;left:${(W-D)/2}px;transform:rotateY(-90deg) translateZ(${W/2}px);filter:brightness(1.06)"></div></div>`;return el}
+const restBlk=buildBlock(118,STAMPS[stampD]);restBlk.firstElementChild.style.transform='rotateX(16deg) rotateZ(-4deg)';
+stampEl.insertAdjacentHTML('afterbegin','<div class="sShadow"></div>');stampEl.appendChild(restBlk);
+const fly=document.createElement('div');fly.id='stampFly';fly.innerHTML='<div class="fShadow"></div><img class="ghost">';document.body.appendChild(fly);
+const fShadow=fly.querySelector('.fShadow'),ghost=fly.querySelector('.ghost');ghost.src=inkSVG(STAMPS[stampD],3);
+let held=null;   // {blk,W,x,y,vx,vy,tx,tz,vtx,vtz,p (0 rest → 1 picked), mode,press}
+function stampPx(){const a=toScreen(s2.front.localToWorld(new THREE.Vector3(0,H/2,0))),b=toScreen(s2.front.localToWorld(new THREE.Vector3(0,-H/2,0)));
+  const px=Math.abs(b[1]-a[1])/CH*170*STAMP_S;return state.open&&px>30?px:110}
+function pageHit(x,y){ptr.set(x/innerWidth*2-1,-y/innerHeight*2+1);ray.setFromCamera(ptr,camera);return state.open?ray.intersectObjects([s1.front,s2.front,s3.front],false)[0]:null}
+stampEl.addEventListener('pointerdown',e=>{if(e.button!==0||held)return;e.preventDefault();e.stopPropagation();downXY=null;controls.enabled=false;
+  const r=restBlk.getBoundingClientRect(),G=stampPx(),W=Math.max(G,112),blk=buildBlock(W,STAMPS[stampD]);fly.appendChild(blk);fly.classList.add('on');stampEl.classList.add('out');
+  const sc=r.width/W*.82;   // start exactly where the resting block sits
+  held={blk,W,G,sc0:sc,x0:r.left+r.width/2,y0:r.top+r.height/2,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,tx:0,tz:0,vtx:0,vtz:0,t0:performance.now(),moved:0,press:0};
+  sfx('pat',.35);requestAnimationFrame(stampTick)});
+fly.addEventListener('pointermove',e=>{if(!held)return;held.moved+=Math.hypot(e.clientX-held.x,e.clientY-held.y);held.x=e.clientX;held.y=e.clientY});
+addEventListener('pointermove',e=>{if(held&&e.target!==fly){held.x=e.clientX;held.y=e.clientY}});
+addEventListener('pointerup',e=>{if(!held||held.press||held.back)return;
+  if(!held.first&&held.moved<6&&performance.now()-held.t0<350){held.first=1;return}held.first=1;   // the click that picked it up: keep holding
+  const r=stampEl.getBoundingClientRect();if(e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom){putBack();return}   // clicked the slot → put it back
+  if(pageHit(e.clientX,e.clientY))pressStamp(e.clientX,e.clientY)});
+fly.addEventListener('contextmenu',e=>{e.preventDefault();if(held&&!held.press)putBack()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&held&&!held.press)putBack()});
+// press: straighten face-down (120ms) → drop, ease-in (100ms) → contact: squash, page shake, thump, ink → lift back up (200ms); stays in hand
+function pressStamp(x,y){held.press=performance.now();held.px=x;held.py=y;
+  setTimeout(()=>{const hit=pageHit(x,y);if(hit){const cv=hit.object===s1.front?'I':hit.object===s2.front?'L':'R';
+      STK.push({i:STAMP0+stampD*10+(Math.random()*NV|0),m:month,cv,x:hit.uv.x*CW,y:(1-hit.uv.y)*CH,r:(Math.random()-.5)*Math.PI/18,s:STAMP_S,k:.72+Math.random()*.28,t:Date.now()});save();drawAll()}
+    sfx('pat',1);sfx('tick',.35);
+    renderer.domElement.animate([{transform:'translate(0,0)'},{transform:'translate(0,2px)'},{transform:'translate(0,-1px)'},{transform:'translate(0,0)'}],{duration:160,easing:'ease-out'})},220);
+  setTimeout(()=>{if(held)held.press=0},420)}
+// select an ink mark (left click) → dashed outline + a small delete button; Delete/Backspace also removes it
+var selStamp=null;const delBtn=document.createElement('button');delBtn.id='stampDel';delBtn.textContent='删除印迹';document.body.appendChild(delBtn);
+function selectStamp(p,e){selStamp=p;delBtn.style.display=p?'block':'none';if(p&&e){delBtn.style.left=e.clientX+18+'px';delBtn.style.top=e.clientY-40+'px'}drawAll()}
+function delStamp(){if(!selStamp)return;const k=STK.indexOf(selStamp);if(k>=0)STK.splice(k,1);save();selectStamp(null);paperRip(.3)}
+delBtn.addEventListener('pointerdown',e=>{e.stopPropagation()});delBtn.addEventListener('click',delStamp);
+addEventListener('keydown',e=>{if(selStamp&&(e.key==='Delete'||e.key==='Backspace')&&!/TEXTAREA|INPUT/.test(document.activeElement.tagName)){e.preventDefault();delStamp()}else if(e.key==='Escape'&&selStamp)selectStamp(null)});
+function putBack(){if(!held)return;held.back=performance.now();held.bx=held.x;held.by=held.y}
+function stampTick(now){if(!held)return;const h=held,dt=1/60;
+  let p=Math.min(1,(now-h.t0)/250);p=1-Math.pow(1-p,3);   // pick-up ease (250ms)
+  let x=h.x,y=h.y,lift=1,up=1,sq=1,k=0;
+  if(h.back){k=Math.min(1,(now-h.back)/300);const e=k*k*(3-2*k);x=h.bx+(h.x0-h.bx)*e;y=h.by+(h.y0-h.by)*e-Math.sin(k*Math.PI)*90;p=1-e;   // arc home
+    if(k>=1){h.blk.remove();fly.classList.remove('on');stampEl.classList.remove('out');held=null;controls.enabled=true;sfx('pat',.4);return}}
+  if(h.press){const t=now-h.press;x=h.px;y=h.py;
+    if(t<120){up=1-(t/120)*(2-t/120)}
+    else if(t<220){up=0;const u=(t-120)/100;lift=1-u*u}
+    else{const u=Math.min(1,(t-220)/200),e=1-Math.pow(1-u,3);up=e;lift=e;sq=t<280?.94+.06*((t-220)/60):1}}
+  // inertia: velocity → target tilt, critically-ish damped spring towards it
+  const vx=(x-h.lx)/dt,vy=(y-h.ly)/dt;h.lx=x;h.ly=y;const cl=v=>Math.max(-10,Math.min(10,v));
+  const gz=h.back||h.press?0:cl(vx*.012),gx=h.back||h.press?0:cl(-vy*.012);
+  h.vtz+=((gz-h.tz)*180-h.vtz*14)*dt;h.tz+=h.vtz*dt;h.vtx+=((gx-h.tx)*180-h.vtx*14)*dt;h.tx+=h.vtx*dt;
+  // rest pose (flat, small, in slot) → held pose (lifted, ×1.15, tilted ~62° so top label + side show)
+  const L=h.W*.95*lift*p,sc=h.sc0+(1.15-h.sc0)*p,pressRx=16+46*up;
+  const rx=16+(pressRx-16)*p+h.tx*up,ry=-16*p*up,rz=-4*(1-p)+h.tz*up;
+  const cx=p<1&&!h.back?h.x0+(x-h.x0)*p:x,cy=p<1&&!h.back?h.y0+(y-h.y0)*p:y;
+  h.blk.style.transform=`translate(${cx}px,${cy-L-h.W*.25*p*lift}px) perspective(${h.W*6}px) scale(${sc}) scaleY(${sq}) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+  const sw=h.W*(1.05+.5*lift*p),sh=sw*.36;fShadow.style.width=sw+'px';fShadow.style.height=sh+'px';
+  fShadow.style.transform=`translate(${cx-sw/2+h.W*.12*lift*p}px,${cy-sh/2+h.W*.05*lift*p}px)`;fShadow.style.opacity=(.5-.32*lift*p).toFixed(3);fShadow.style.filter=`blur(${2+10*lift*p}px)`;
+  const over=!h.back&&pageHit(x,y);ghost.style.display=over?'block':'none';
+  if(over){const gw=h.G;ghost.style.width=ghost.style.height=gw*256/220+'px';ghost.style.transform=`translate(${x-gw*128/220}px,${y-gw*128/220}px)`}
+  requestAnimationFrame(stampTick)}
 function markUsed(){}   // stickers are reusable: a fresh copy refills the slot after each peel
 let dragEl=null,dragI=-1;
 // Peel: the sticker lifts from the nearest corner along a fold line; the flap shows the white liner side and casts a shadow.
@@ -667,9 +899,15 @@ function sizeDrag(s){const a=toScreen(s2.front.localToWorld(new THREE.Vector3(0,
 function stickerAt(e){ptr.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);ray.setFromCamera(ptr,camera);
   const hit=ray.intersectObjects([s1.front,s2.front,s3.front],false)[0];if(!hit)return null;
   const cv=hit.object===s1.front?'I':hit.object===s2.front?'L':'R',x=hit.uv.x*CW,y=(1-hit.uv.y)*CH;
-  for(let k=STK.length-1;k>=0;k--){const p=STK[k];if(p.m==month&&p.cv==cv&&Math.hypot(p.x-x,p.y-y)<78*p.s)return k}return null}
+  let skip=e.altKey?1:0;   // Alt-click reaches through the top sticker to the one underneath
+  for(let k=STK.length-1;k>=0;k--){const p=STK[k];if(p.m==month&&p.cv==cv&&stkHit(p,x,y)){if(skip--<=0)return k}}return null}
+// pixel-accurate hit: ignore the transparent corners so overlapping stickers pick the one you actually see
+const ALPHA={};function stkHit(p,x,y){const a=HART[p.i]||ART[p.i];if(!a)return false;const sz=170*p.s,dx=x-p.x,dy=y-p.y,c=Math.cos(-p.r),s=Math.sin(-p.r);
+  const u=(dx*c-dy*s)/sz+.5,v=(dx*s+dy*c)/sz+.5;if(u<0||u>=1||v<0||v>=1)return false;
+  let d=ALPHA[p.i];if(!d||d.src!==a){try{const w=a.width,h=a.height,cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');g.drawImage(a,0,0);d=ALPHA[p.i]={src:a,w,h,px:g.getImageData(0,0,w,h).data}}catch(_){return Math.hypot(dx,dy)<78*p.s}}
+  return d.px[(Math.floor(v*d.h)*d.w+Math.floor(u*d.w))*4+3]>40}
 // placed stickers can be peeled up again and moved anywhere
-renderer.domElement.addEventListener('pointerdown',e=>{if(e.button!==0||!state.open||editing)return;const k=stickerAt(e);if(k==null)return;
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.button!==0||!state.open||editing)return;const k=stickerAt(e);if(k!=null&&STK[k].i>=STAMP0){downXY=null;selectStamp(STK[k],e);return}if(selStamp)selectStamp(null);if(k==null)return;
   downXY=null;controls.enabled=false;const p=STK.splice(k,1)[0];save();drawAll();dragI=p.i;
   dragEl=document.createElement('img');dragEl.id='drag';dragEl.src=(HART[p.i]||ART[p.i]).toDataURL();sizeDrag(p.s);dragEl.dataset.s=p.s;
   document.body.appendChild(dragEl);moveDrag(e);paperRip(.55)});
@@ -706,13 +944,17 @@ addEventListener('pointerup',e=>{if(!dragEl)return;const el=dragEl;dragEl=null;c
     STK.push({i:dragI,m:month,cv,x:hit.uv.x*CW,y:(1-hit.uv.y)*CH,r:(Math.random()-.5)*.35,s:el.dataset.s?+el.dataset.s:.78,t:Date.now()});save();drawAll();pat()}
   el.remove();markUsed()});
 renderer.domElement.addEventListener('contextmenu',e=>{e.preventDefault();ptr.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);ray.setFromCamera(ptr,camera);
-  const hit=ray.intersectObjects([s1.front,s2.front,s3.front],false)[0];if(!hit)return;const cv=hit.object===s1.front?'I':hit.object===s2.front?'L':'R',x=hit.uv.x*CW,y=(1-hit.uv.y)*CH;
-  for(let k=STK.length-1;k>=0;k--){const p=STK[k];if(p.m==month&&p.cv==cv&&Math.hypot(p.x-x,p.y-y)<70*p.s){STK.splice(k,1);save();drawAll();markUsed();paperRip();break}}});
+  const k=stickerAt(e);if(k==null)return;
+  if(e.shiftKey){STK.unshift(STK.splice(k,1)[0]);save();drawAll();pat();return}   // Shift+right-click: tuck it under the others
+  STK.splice(k,1);save();drawAll();markUsed();paperRip()});
 function drawPlaced(){if(!ART)return;const map={I:cvIntro,L:cvL,R:cvR};
   const now=Date.now();
   STK.filter(p=>p.m==month&&ART[p.i]).forEach(p=>{const g=map[p.cv].getContext('2d'),a=HART[p.i]||ART[p.i];
     // press & settle: lands a bit big and lifted, presses down past flat, then relaxes (shadow tightens as it sticks)
     const age=p.t?(now-p.t)/1000:9;let k=1,lift=0;
+    if(p.i>=STAMP0){const sz=170*p.s;g.save();g.translate(p.x,p.y);g.rotate(p.r);g.globalCompositeOperation='multiply';g.globalAlpha=(p.k||.9)*Math.min(1,.55+age*3);g.drawImage(a,-sz/2,-sz/2,sz,sz);
+      if(p===selStamp){g.globalCompositeOperation='source-over';g.globalAlpha=1;g.setLineDash([10,8]);g.lineWidth=3;g.strokeStyle='#c0583f';g.beginPath();g.roundRect(-sz*.47,-sz*.47,sz*.94,sz*.94,14);g.stroke()}
+      g.restore();return}
     if(age<.5){if(age<.11){const u=age/.11;k=1.3-.38*u;lift=1-u}else{const u=(age-.11)/.39;k=.92+.08*(1-Math.pow(1-u,3))+Math.sin(u*Math.PI*2)*.02*(1-u);lift=0}}
     const sz=170*p.s*k;g.save();g.translate(p.x,p.y);g.rotate(p.r+(age<.5?Math.sin(age*30)*.03*(1-age*2):0));
     if(p.i>=TAPE0&&age>=.5){g.globalCompositeOperation='multiply';g.globalAlpha=.92}else g.shadowColor=`rgba(60,40,20,${.28+.12*lift})`;g.shadowBlur=6+26*lift;g.shadowOffsetY=3+16*lift;g.drawImage(a,-sz/2,-sz/2,sz,sz);g.restore()})}
@@ -722,15 +964,34 @@ function placeStrips(){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;const add=(m,x,y)=>{con
   [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([a,b])=>{add(coverMesh,a*CVW/2,b*CVH/2);add(flap.userData.pick[0],a*FW/2,b*CVH/2);add(s3.front,a*W/2,b*H/2);add(s2.front,a*W/2,b*H/2)});
   const fit=(el,x,y,availW,availH,max)=>{const w=el.offsetWidth,h=el.offsetHeight;const sc=Math.min(max,availW/w,availH/h),ok=sc>=.32;
     el.style.opacity=ok?1:0;el.style.pointerEvents=ok?'':'none';return {sc:Math.max(sc,.32),w,h}};
-  const top=document.getElementById('stTop'),bot=document.getElementById('stBot'),rt=document.getElementById('stRight'),bw=x1-x0,cx=(x0+x1)/2;
-  let f=fit(top,0,0,bw*1.05,y0-58,1.15);top.style.transform=`translate(${cx-f.w*f.sc/2}px,${y0-14-f.h*f.sc}px) scale(${f.sc})`;
-  f=fit(bot,0,0,bw*1.05,innerHeight-86-(y1+14),1.15);bot.style.transform=`translate(${cx-f.w*f.sc/2}px,${y1+14}px) scale(${f.sc})`;
-  f=fit(rt,0,0,innerWidth-x1-40,(y1-y0)*1.05,1.2);const rtTop=(y0+y1)/2-f.h*f.sc/2;rt.style.transform=`translate(${x1+22}px,${rtTop}px) scale(${f.sc})`;
-  const fs=Math.min(f.sc*1.05,Math.max(.4,(rtTop-24)/(168+70)));folder.style.transform=`translate(${x1+22+(f.w*f.sc-250*fs)/2}px,${rtTop-14-168*fs}px) scale(${fs})`;folder.style.opacity=f.sc>=.32?1:0;
-  {const rb=rtTop+f.h*f.sc+16,room=innerHeight-80-rb,bx=x1+22+f.w*f.sc/2;let ts,tx,ty;
-   if(room>=110){ts=Math.min(1,room/200);tx=bx-100*ts;ty=rb}   // under the right panel
-   else{const br=bot.getBoundingClientRect();ts=Math.max(.55,Math.min(.9,(innerWidth-br.right-30)/200));tx=Math.max(br.right+14,innerWidth-200*ts-16);ty=innerHeight-80-200*ts}   // bottom-right corner
-   tapeEl.style.transform=`translate(${tx}px,${ty}px) scale(${ts})`;tapeEl.style.opacity=1;tapeEl.style.pointerEvents=''}}
+  const top=document.getElementById('stTop'),bot=document.getElementById('stBot'),bw=x1-x0,cx=(x0+x1)/2;
+  // zoomed in so far there's no room above the book: stickers line up in one long row along the top edge (bottom strip joins it if it has no room either)
+  const nat=el=>{if(!el.classList.contains('one'))el._n={w:el.offsetWidth,h:el.offsetHeight}};nat(top);nat(bot);
+  const topCr=writeMode||top._n&&Math.min(bw*1.05/top._n.w,(y0-58)/top._n.h)<.32,botCr=writeMode||bot._n&&Math.min(bw*1.05/bot._n.w,(innerHeight-86-(y1+14))/bot._n.h)<.32;
+  const one=(el,on)=>{if(el.classList.contains('one')===on)return;el.classList.toggle('one',on);el.style.setProperty('--cols',on?el.querySelectorAll('.stkw').length:el._cols)};
+  if(top._cols==null){top._cols=top.style.getPropertyValue('--cols');bot._cols=bot.style.getPropertyValue('--cols')}
+  one(top,!!topCr);one(bot,!!(topCr&&botCr));
+  let f;
+  if(!(writeMode&&topCr&&botCr))[top,bot].forEach(el=>el.classList.remove('wm','t','b'));
+  if(topCr){const row=botCr?[top,bot]:[top],gap=12,tw=row.reduce((t,el)=>t+el.offsetWidth,0)+gap*(row.length-1),th=Math.max(...row.map(el=>el.offsetHeight));
+    const right=innerWidth-x1-40>100?x1+10:innerWidth-12,sc=Math.min(1,(right-12)/tw,Math.max(46,y0+40)/th);let x=12+Math.max(0,(right-12-tw*sc)/2);
+    if(row.length>1&&writeMode){   // 书写模式: both groups joined into one long strip across the full width, tighter spacing → bigger stickers
+      top.classList.add('wm','t');bot.classList.add('wm','b');
+      const R=innerWidth-12,tw2=top.offsetWidth+bot.offsetWidth,sc2=Math.min(1.4,(R-12)/tw2);let x2=12+Math.max(0,(R-12-tw2*sc2)/2);
+      row.forEach(el=>{el.style.setProperty('--pop',Math.max(1.6,96/(58*sc2)).toFixed(2));el.style.opacity=1;el.style.pointerEvents='';
+        el.style.transform=`translate(${x2}px,6px) scale(${sc2})`;x2+=el.offsetWidth*sc2})}
+    else row.forEach(el=>{el.style.setProperty('--pop',Math.max(1.6,96/(58*sc)).toFixed(2));el.style.opacity=1;el.style.pointerEvents='';el.style.transform=`translate(${x}px,6px) scale(${sc})`;x+=(el.offsetWidth+gap)*sc})}
+  else{f=fit(top,0,0,bw*1.05,y0-58,1.15);top.style.transform=`translate(${cx-f.w*f.sc/2}px,${y0-14-f.h*f.sc}px) scale(${f.sc})`}
+  if(!(topCr&&botCr)){f=fit(bot,0,0,bw*1.05,innerHeight-86-(y1+14),1.15);bot.style.transform=`translate(${cx-f.w*f.sc/2}px,${y1+14}px) scale(${f.sc})`}
+  // right column (desk area beside the book): ins folder → tape roll → stamp slot
+  const colW=Math.max(0,innerWidth-x1-40),colX=x1+22,colTop=Math.max(70,y0),colH=Math.max(0,innerHeight-90-colTop);
+  const fs=Math.max(.4,Math.min(1.15,colW/250,colH*.34/(168+70)));folder.style.transform=`translate(${colX+(colW-250*fs)/2}px,${colTop+70*fs}px) scale(${fs})`;folder.style.opacity=colW>100?1:0;
+  CL.idle={x:colX+colW/2-6*fs,y:colTop+70*fs+14*fs,s:Math.min(1,fs*.95),show:colW>100?1:0};
+  {const tl=toScreen(s2.front.localToWorld(new THREE.Vector3(-W/2,H/2,0))),tr=toScreen(s3.front.localToWorld(new THREE.Vector3(W/2,H/2,0)));CL.book={x:(tl[0]+tr[0])/2,y:(tl[1]+tr[1])/2+4}}
+  clipFrame();
+  const fb=colTop+(70+168)*fs+18,rest=innerHeight-90-fb,slot=Math.max(70,Math.min(200,rest/2-10,colW));
+  const ts=Math.max(.45,Math.min(1,slot/200));tapeEl.style.transform=`translate(${colX+colW/2-100*ts}px,${fb}px) scale(${ts})`;tapeEl.style.opacity=1;tapeEl.style.pointerEvents='';
+  const ss=Math.max(.45,Math.min(1,slot/200));stampEl.style.transform=`translate(${colX+colW/2-100*ss}px,${fb+200*ts+14}px) scale(${ss})`}
 
 
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -765,8 +1026,10 @@ function frame(){const dt=Math.min(clock.getDelta(),.033);
   const cx=(left+Math.max(W+0.5,right))/2+STKW*.5;book.position.x+=(-cx-book.position.x)*.08;
   const span=Math.max(W+0.5,right)-left+4+STKW;const fitD=(span/2)/Math.tan(THREE.MathUtils.degToRad(15))/camera.aspect;
   let targetD=Math.max(46,Math.min(160,fitD*1.05));
+  if(writeMode)focusMode=true;   // 书写模式: stay on the flat, front-on page view
   if(focusMode&&cur.p3>.9){const fp=s2.front.localToWorld(new THREE.Vector3(W/2,0,0)),t=Math.tan(THREE.MathUtils.degToRad(15));
-    controls.target.lerp(fp,.08);targetD=Math.max((2*W+2)/2/t/camera.aspect,(H+2)/2/t)}
+    if(writeMode)fp.y+=H*.06;   // headroom above the page for the sticker rows   // leave headroom above the page for the clip
+    controls.target.lerp(fp,.08);targetD=Math.max((2*W+2)/2/t/camera.aspect,(H+2)/2/t)*(writeMode?1.12:1)}
   else{focusMode=focusMode&&cur.p3>.9;controls.target.lerp(new THREE.Vector3(),.08)}
   targetD*=userZoom;camDist+=(targetD-camDist)*.08;
   const dir=camera.position.clone().sub(controls.target).normalize();camera.position.copy(controls.target).addScaledVector(dir,camDist);
